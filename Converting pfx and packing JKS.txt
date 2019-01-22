@@ -1,0 +1,10 @@
+openssl
+
+pkcs12 -export -in C:\Users\admjon\Desktop\star_metroselskabet_dk.pem -inkey C:\Users\admjon\Desktop\star_metrokey.key -name metromeeting -out C:\Users\admjon\Desktop\wowzacert.p12
+
+keytool -importkeystore -deststorepass Mumlehus05 -destkeystore "C:\Program Files (x86)\Wowza Media Systems\Wowza Streaming Engine 4.7.0\conf\wowzastore2.jks" -srckeystore C:\Users\admjon\Desktop\pem\metrocert.p12 -srcstoretype PKCS12
+
+openssl pkcs12 -in C:\Users\admjon\Desktop\star_metro.pfx -nocerts -out C:\Users\admjon\Desktop\star_metrokey.pem
+rsa -in C:\Users\admjon\Desktop\star_metrokey.pem -out C:\Users\admjon\Desktop\star_metrokey.key
+
+keytool -import -alias bundle -trustcacerts -file C:\Users\admjon\Desktop\pem\TrustedRoot.pem -keystore "C:\Program Files (x86)\Wowza Media Systems\Wowza Streaming Engine 4.7.0\conf\wowzastore2.jks"
