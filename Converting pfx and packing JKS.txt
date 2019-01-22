@@ -1,10 +1,29 @@
+#Download "openssl" from the web
+#Configure Java to use "keytool"
+#Download pfx certificate from a server that has it installed - use the star certificate - give it a password and remember it.
+#Log in to DigiCert and get your raw .pem files: "Root,Intermediate,Host", open Root in a txt explorer and copy the intermediate text in, on top so you have two BEGIN headers and two END headers - save.
+
+#Call openssl and do the following:
 openssl
 
-pkcs12 -export -in C:\Users\admjon\Desktop\star_metroselskabet_dk.pem -inkey C:\Users\admjon\Desktop\star_metrokey.key -name metromeeting -out C:\Users\admjon\Desktop\wowzacert.p12
+#extracts the private key and stores it as a .pem
+pkcs12 -in C:\Users\admjon\Desktop\star_metro.pfx -nocerts -out C:\Users\admjon\Desktop\star_metrokey.pem
 
-keytool -importkeystore -deststorepass Mumlehus05 -destkeystore "C:\Program Files (x86)\Wowza Media Systems\Wowza Streaming Engine 4.7.0\conf\wowzastore2.jks" -srckeystore C:\Users\admjon\Desktop\pem\metrocert.p12 -srcstoretype PKCS12
-
-openssl pkcs12 -in C:\Users\admjon\Desktop\star_metro.pfx -nocerts -out C:\Users\admjon\Desktop\star_metrokey.pem
+#converts the .pem file to a raw rsa encoded .key file
 rsa -in C:\Users\admjon\Desktop\star_metrokey.pem -out C:\Users\admjon\Desktop\star_metrokey.key
 
+#Convert the raw host certificate and add the extracted .key file to a p12 cert for use in keytool
+pkcs12 -export -in C:\Users\admjon\Desktop\star_metroselskabet_dk.pem -inkey C:\Users\admjon\Desktop\star_metrokey.key -name metromeeting -out C:\Users\admjon\Desktop\metrocert.p12
+
+#Exit openssl by doing "exit", then enter keytool
+keytool
+
+#Use keytool to import the p12 file and create a new keystore for Wowza.
+-importkeystore -deststorepass Mumlehus05 -destkeystore "C:\Program Files (x86)\Wowza Media Systems\Wowza Streaming Engine 4.7.0\conf\wowzastore2.jks" -srckeystore C:\Users\admjon\Desktop\pem\metrocert.p12 -srcstoretype PKCS12
+
+#Type in the password you set for the pfx private key
+
+#Now import the bundled "root.pem" into the newly created wowzastore2.jks
 keytool -import -alias bundle -trustcacerts -file C:\Users\admjon\Desktop\pem\TrustedRoot.pem -keystore "C:\Program Files (x86)\Wowza Media Systems\Wowza Streaming Engine 4.7.0\conf\wowzastore2.jks"
+
+#You should now have updated the certificate for Wowza Streaming Engine and placed it in the correct folder.
